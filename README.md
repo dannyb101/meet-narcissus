@@ -1,5 +1,4 @@
-# Meet SelfView Center
-
+# Meet SelfView Center&nbsp;&nbsp;&nbsp;<img src="icons/icon48.png" width="28" height="28" align="bottom" alt="icon" />
 Turns your Google Meet self-view into a draggable floating overlay with snap-to-top-center and quick resize.
 
 ## Features
