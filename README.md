@@ -27,6 +27,7 @@ Turns your Google Meet self-view into a draggable floating overlay with snap-to-
 
 ## Notes
 Google Meet is frequently updated, so selectors may break over time. If something stops working, open an issue.
+Tested on Chrome (macOS) on 2026-01-30.
 
 ## Privacy
 This extension does not collect, store, or transmit any personal data. All processing happens locally in your browser.
