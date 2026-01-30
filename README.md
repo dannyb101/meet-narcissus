@@ -24,7 +24,6 @@ Turns your Google Meet self-view into a draggable floating overlay with snap-to-
   - `-` = 50%, `+` = 100%
 - Toggle the extension:
   - Click the extension icon (enable/disable)
-  - Hotkey: **Alt+Shift+C**
 
 ## Notes
 Google Meet is frequently updated, so selectors may break over time. If something stops working, open an issue.
