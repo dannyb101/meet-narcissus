@@ -32,4 +32,4 @@ Tested on Chrome (macOS) on 2026-01-30.
 This extension does not collect, store, or transmit any personal data. All processing happens locally in your browser.
 
 ## License
-MIT (if you add a LICENSE file)
+MIT
