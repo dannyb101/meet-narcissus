@@ -12,7 +12,6 @@
   const HIDE_GRACE_MS = 1500;
 
   const HIDE_ORIGINAL = true;
-
   const OVERLAY_ID = "msc-overlay";
 
   let enabled = true;
@@ -30,7 +29,7 @@
   let streamListenersBound = new WeakSet();
 
   let lastUrl = location.href;
-    let currentScale = 1.0; // 1.0 = 100%, 0.5 = 50%
+  let currentScale = 1.0; // 1.0 = 100%, 0.5 = 50%
 
   function injectHookScript() {
     const s = document.createElement("script");
@@ -40,22 +39,20 @@
     (document.head || document.documentElement).appendChild(s);
   }
 
-  // ----- hide/restore original Meet self-view -----
   function hideOriginal(videoEl) {
     if (!HIDE_ORIGINAL || !videoEl) return;
 
-    // Никогда не прячем наш оверлей или его внутренности
+    // never hide our overlay
     if (videoEl.closest && videoEl.closest(`#${OVERLAY_ID}`)) return;
 
     let el = videoEl;
     for (let i = 0; i < 10 && el.parentElement; i++) {
       const p = el.parentElement;
 
-      // Никогда не прячем root элементы
+      // never hide roots
       if (p === document.documentElement || p === document.body) break;
 
       const r = p.getBoundingClientRect();
-      // >= чтобы оверлей 160x90 считался нормальным контейнером
       if (r.width >= 120 && r.height >= 90) {
         el = p;
         break;
@@ -63,7 +60,6 @@
       el = p;
     }
 
-    // Финальный guard: не прячем html/body
     if (!el || el === document.documentElement || el === document.body) return;
     if (el.dataset.mscHidden === "1") return;
 
@@ -80,7 +76,6 @@
   function restoreAllOriginal() {
     const hidden = document.querySelectorAll('[data-msc-hidden="1"]');
     hidden.forEach((el) => {
-      // Safety: не трогаем html/body даже если бы вдруг пометили
       if (el === document.documentElement || el === document.body) return;
 
       const prevOpacity = el.dataset.mscPrevOpacity ?? "";
@@ -98,7 +93,6 @@
     });
   }
 
-  // ----- overlay positioning -----
   function snapTopCenter() {
     if (!overlay) return;
     overlay.style.transform = "translateX(-50%)";
@@ -106,7 +100,6 @@
     overlay.style.top = `${TOP_OFFSET_PX}px`;
   }
 
-  // ВАЖНО: после resize делаем “soft refresh”, чтобы видео не белело
   function refreshVideoRendering() {
     if (!overlayVideo) return;
     const s = overlayVideo.srcObject;
@@ -115,11 +108,16 @@
     requestAnimationFrame(() => {
       if (!overlayVideo) return;
       try {
-        // “мягкий” перерендер
         overlayVideo.srcObject = s;
         overlayVideo.play?.().catch(() => {});
       } catch (_) {}
     });
+  }
+
+  function updateScaleButtons() {
+    if (!btnPlus || !btnMinus) return;
+    btnPlus.style.display = (currentScale >= 1.0) ? "none" : "inline-block";
+    btnMinus.style.display = (currentScale <= 0.5) ? "none" : "inline-block";
   }
 
   function setScale(scale) {
@@ -138,37 +136,24 @@
     refreshVideoRendering();
   }
 
-function styleTinyButton(btn) {
-  btn.type = "button";
-  btn.style.width = "18px";
-  btn.style.height = "18px";
-  btn.style.padding = "0";
-  btn.style.border = "none";                 // убрать окантовку
-  btn.style.borderRadius = "0";              // убрать “круг”
-  btn.style.background = "transparent";      // без подложки
-  btn.style.color = "rgba(255,255,255,0.95)";
-  btn.style.font = "18px/18px system-ui, -apple-system, Segoe UI, Roboto";
-  btn.style.cursor = "pointer";
-  btn.style.pointerEvents = "auto";
+  function styleTinyButton(btn) {
+    btn.type = "button";
+    btn.style.width = "18px";
+    btn.style.height = "18px";
+    btn.style.padding = "0";
+    btn.style.border = "none";
+    btn.style.borderRadius = "0";
+    btn.style.background = "transparent";
+    btn.style.color = "rgba(255,255,255,0.95)";
+    btn.style.font = "18px/18px system-ui, -apple-system, Segoe UI, Roboto";
+    btn.style.cursor = "pointer";
+    btn.style.pointerEvents = "auto";
 
-  // убрать фокусные обводки/эффекты
-  btn.style.outline = "none";
-  btn.style.boxShadow = "none";
-  btn.style.webkitAppearance = "none";
-  btn.style.webkitTapHighlightColor = "transparent";
-
-  // чтобы было читабельно на видео
-  btn.style.textShadow = "0 1px 2px rgba(0,0,0,0.7)";
-}
-
-  function updateScaleButtons() {
-    if (!btnPlus || !btnMinus) return;
-
-    // Если уже 100% - плюс не нужен
-    btnPlus.style.display = (currentScale >= 1.0) ? "none" : "inline-block";
-
-    // Если уже 50% - минус не нужен
-    btnMinus.style.display = (currentScale <= 0.5) ? "none" : "inline-block";
+    btn.style.outline = "none";
+    btn.style.boxShadow = "none";
+    btn.style.webkitAppearance = "none";
+    btn.style.webkitTapHighlightColor = "transparent";
+    btn.style.textShadow = "0 1px 2px rgba(0,0,0,0.7)";
   }
 
   function ensureOverlay() {
@@ -188,7 +173,7 @@ function styleTinyButton(btn) {
     overlay.style.boxShadow = "0 12px 40px rgba(0,0,0,0.35)";
     overlay.style.background = "black";
     overlay.style.display = "none";
-    overlay.style.cursor = "move"; // drag по всей поверхности
+    overlay.style.cursor = "move";
 
     overlayVideo = document.createElement("video");
     overlayVideo.autoplay = true;
@@ -208,7 +193,6 @@ function styleTinyButton(btn) {
     overlayVideo.style.transform = "translateZ(0)";
     overlay.appendChild(overlayVideo);
 
-    // Подсказка слева сверху
     tip = document.createElement("div");
     tip.textContent = "Double-click to snap";
     tip.style.position = "absolute";
@@ -224,17 +208,16 @@ function styleTinyButton(btn) {
     tip.style.textShadow = "0 1px 2px rgba(0,0,0,0.6)";
     overlay.appendChild(tip);
 
-    // controls: без фона, справа сверху
     controls = document.createElement("div");
-	controls.style.position = "absolute";
-	controls.style.right = "8px";
-	controls.style.top = "8px";
-	controls.style.height = "22px";          // как у tip: 4 + 14 + 4
-	controls.style.display = "flex";
-	controls.style.alignItems = "center";    // вертикально в один уровень с tip
-	controls.style.gap = "10px";
-	controls.style.zIndex = "3";
-	controls.style.pointerEvents = "none";
+    controls.style.position = "absolute";
+    controls.style.right = "8px";
+    controls.style.top = "8px";
+    controls.style.height = "22px";
+    controls.style.display = "flex";
+    controls.style.alignItems = "center";
+    controls.style.gap = "10px";
+    controls.style.zIndex = "3";
+    controls.style.pointerEvents = "none";
     overlay.appendChild(controls);
 
     btnMinus = document.createElement("button");
@@ -250,7 +233,12 @@ function styleTinyButton(btn) {
     styleTinyButton(btnPlus);
     btnPlus.style.pointerEvents = "auto";
     controls.appendChild(btnPlus);
+
     updateScaleButtons();
+
+    // prevent focus ring on mouse click
+    btnMinus.addEventListener("mousedown", (e) => e.preventDefault());
+    btnPlus.addEventListener("mousedown", (e) => e.preventDefault());
 
     btnMinus.addEventListener("click", (e) => {
       setScale(0.5);
@@ -266,7 +254,6 @@ function styleTinyButton(btn) {
 
     document.documentElement.appendChild(overlay);
 
-    // Drag по всей превью
     let dragging = false;
     let startX = 0, startY = 0;
     let startLeft = 0, startTop = 0;
@@ -348,9 +335,7 @@ function styleTinyButton(btn) {
     restoreAllOriginal();
   }
 
-  // ----- stream detection -----
   function findSelfStream() {
-    // 1) точный поиск по trackIds (но НЕ по нашему overlay video)
     if (localTrackIds.size) {
       for (const v of document.querySelectorAll("video")) {
         if (v.closest && v.closest(`#${OVERLAY_ID}`)) continue;
@@ -364,7 +349,6 @@ function styleTinyButton(btn) {
       }
     }
 
-    // 2) fallback: smallest muted (опять же, без overlay)
     const candidates = Array.from(document.querySelectorAll("video"))
       .filter(v => !(v.closest && v.closest(`#${OVERLAY_ID}`)))
       .filter(v => v.srcObject && typeof v.srcObject.getVideoTracks === "function");
@@ -470,7 +454,6 @@ function styleTinyButton(btn) {
     hideOriginal(found.videoEl);
   }
 
-  // ----- messaging -----
   function setupTrackListener() {
     window.addEventListener("message", (event) => {
       if (!event?.data) return;
@@ -507,11 +490,8 @@ function styleTinyButton(btn) {
       enabled = !!msg.enabled;
       console.log(TAG, "set enabled from action:", enabled);
 
-      if (!enabled) {
-        destroyOverlayAndRestore();
-      } else {
-        apply();
-      }
+      if (!enabled) destroyOverlayAndRestore();
+      else apply();
     });
   }
 
@@ -523,7 +503,6 @@ function styleTinyButton(btn) {
     });
   }
 
-  // ----- start -----
   injectHookScript();
   loadEnabledFlag();
   setupTrackListener();
