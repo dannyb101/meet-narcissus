@@ -45,7 +45,30 @@
     // never hide our overlay
     if (videoEl.closest && videoEl.closest(`#${OVERLAY_ID}`)) return;
 
+    const el = getOriginalContainer(videoEl);
+    if (!el || el === document.documentElement || el === document.body) return;
+
+    restoreAllOriginalExcept(el);
+
+    if (el.dataset.mscHidden === "1") return;
+
+    el.dataset.mscPrevOpacity = el.style.opacity || "";
+    el.dataset.mscPrevPointerEvents = el.style.pointerEvents || "";
+    el.dataset.mscPrevFilter = el.style.filter || "";
+    el.dataset.mscPrevVisibility = el.style.visibility || "";
+    el.dataset.mscHidden = "1";
+
+    el.style.setProperty("opacity", "0", "important");
+    el.style.setProperty("pointer-events", "none", "important");
+    el.style.setProperty("filter", "opacity(0)", "important");
+    el.style.setProperty("visibility", "hidden", "important");
+  }
+
+  function getOriginalContainer(videoEl) {
     let el = videoEl;
+    let candidate = videoEl;
+    const videoRect = videoEl.getBoundingClientRect();
+
     for (let i = 0; i < 10 && el.parentElement; i++) {
       const p = el.parentElement;
 
@@ -53,44 +76,51 @@
       if (p === document.documentElement || p === document.body) break;
 
       const r = p.getBoundingClientRect();
-      if (r.width >= 120 && r.height >= 90) {
-        el = p;
-        break;
+      const hasTileSize = r.width >= 120 && r.height >= 90;
+      const hasSingleVideo = p.querySelectorAll("video").length === 1;
+      const roughlySameTile =
+        Math.abs(r.width - videoRect.width) <= Math.max(8, videoRect.width * 0.08) &&
+        Math.abs(r.height - videoRect.height) <= Math.max(8, videoRect.height * 0.08);
+
+      if (hasTileSize && hasSingleVideo && roughlySameTile) {
+        candidate = p;
       }
       el = p;
     }
 
+    return candidate;
+  }
+
+  function restoreOriginalElement(el) {
     if (!el || el === document.documentElement || el === document.body) return;
-    if (el.dataset.mscHidden === "1") return;
 
-    el.dataset.mscPrevOpacity = el.style.opacity || "";
-    el.dataset.mscPrevPointerEvents = el.style.pointerEvents || "";
-    el.dataset.mscPrevFilter = el.style.filter || "";
-    el.dataset.mscHidden = "1";
+    const prevOpacity = el.dataset.mscPrevOpacity ?? "";
+    const prevPE = el.dataset.mscPrevPointerEvents ?? "";
+    const prevFilter = el.dataset.mscPrevFilter ?? "";
+    const prevVisibility = el.dataset.mscPrevVisibility ?? "";
 
-    el.style.setProperty("opacity", "0", "important");
-    el.style.setProperty("pointer-events", "none", "important");
-    el.style.setProperty("filter", "opacity(0)", "important");
+    if (prevOpacity) el.style.opacity = prevOpacity; else el.style.removeProperty("opacity");
+    if (prevPE) el.style.pointerEvents = prevPE; else el.style.removeProperty("pointer-events");
+    if (prevFilter) el.style.filter = prevFilter; else el.style.removeProperty("filter");
+    if (prevVisibility) el.style.visibility = prevVisibility; else el.style.removeProperty("visibility");
+
+    delete el.dataset.mscPrevOpacity;
+    delete el.dataset.mscPrevPointerEvents;
+    delete el.dataset.mscPrevFilter;
+    delete el.dataset.mscPrevVisibility;
+    delete el.dataset.mscHidden;
+  }
+
+  function restoreAllOriginalExcept(currentEl) {
+    const hidden = document.querySelectorAll('[data-msc-hidden="1"]');
+    hidden.forEach((el) => {
+      if (el !== currentEl) restoreOriginalElement(el);
+    });
   }
 
   function restoreAllOriginal() {
     const hidden = document.querySelectorAll('[data-msc-hidden="1"]');
-    hidden.forEach((el) => {
-      if (el === document.documentElement || el === document.body) return;
-
-      const prevOpacity = el.dataset.mscPrevOpacity ?? "";
-      const prevPE = el.dataset.mscPrevPointerEvents ?? "";
-      const prevFilter = el.dataset.mscPrevFilter ?? "";
-
-      if (prevOpacity) el.style.opacity = prevOpacity; else el.style.removeProperty("opacity");
-      if (prevPE) el.style.pointerEvents = prevPE; else el.style.removeProperty("pointer-events");
-      if (prevFilter) el.style.filter = prevFilter; else el.style.removeProperty("filter");
-
-      delete el.dataset.mscPrevOpacity;
-      delete el.dataset.mscPrevPointerEvents;
-      delete el.dataset.mscPrevFilter;
-      delete el.dataset.mscHidden;
-    });
+    hidden.forEach(restoreOriginalElement);
   }
 
   function snapTopCenter() {
@@ -458,6 +488,7 @@
     window.addEventListener("message", (event) => {
       if (!event?.data) return;
       if (event.data.type !== "MEET_SELF_VIEW_CENTER_LOCAL_TRACKS") return;
+      if (event.data.source !== "getUserMedia") return;
 
       const ids = Array.isArray(event.data.trackIds) ? event.data.trackIds : [];
       if (!ids.length) return;
