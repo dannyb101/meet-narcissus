@@ -1,5 +1,5 @@
 (() => {
-  const TAG = "[MeetSelfViewCenter]";
+  const TAG = "[MeetNarcissus]";
   const STORAGE_KEY = "msc_enabled";
   const HOTKEY = { altKey: true, shiftKey: true, code: "KeyC" }; // Alt+Shift+C
 

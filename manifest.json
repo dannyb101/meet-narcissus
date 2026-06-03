@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Meet Self-View Center",
+  "name": "Meet Narcissus",
   "version": "1.0.1",
-  "description": "Overlay self-view for Google Meet.",
+  "description": "Move your Google Meet self-view near the camera for better eye contact.",
   "permissions": ["storage", "activeTab"],
   "host_permissions": ["https://meet.google.com/*"],
   "icons": {
@@ -12,7 +12,7 @@
     "128": "icons/icon128.png"
   },
   "action": {
-    "default_title": "Toggle self-view overlay",
+    "default_title": "Toggle Meet Narcissus",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",

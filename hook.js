@@ -1,5 +1,5 @@
 (() => {
-  const TAG = "[MeetSelfViewCenter-hook]";
+  const TAG = "[MeetNarcissus-hook]";
 
   function postTrackIds(trackIds, source) {
     try {
