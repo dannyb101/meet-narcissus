@@ -220,7 +220,7 @@
     overlayVideo.style.display = "block";
     overlayVideo.style.zIndex = "1";
     overlayVideo.style.background = "black";
-    overlayVideo.style.transform = "translateZ(0)";
+    overlayVideo.style.transform = "scaleX(-1) translateZ(0)";
     overlay.appendChild(overlayVideo);
 
     tip = document.createElement("div");
