@@ -1,7 +1,7 @@
 # Meet Narcissus&nbsp;&nbsp;&nbsp;<img src="icons/icon48.png" width="28" height="28" align="bottom" alt="icon" />
 
 Meet Narcissus is a Chrome extension for Google Meet that admits the quiet part:
-on video calls, many of us look at ourselves.
+on video calls, [many of us look at ourselves](https://yougov.com/en-us/articles/33801-work-video-chats-watching-self-poll).
 
 Instead of pretending we are all above this deeply human habit, Meet Narcissus
 turns your Google Meet self-view into a draggable overlay. Put it where it
@@ -10,20 +10,23 @@ keeps your gaze closer to the people you are speaking to.
 
 ## Why Narcissus?
 
-In Greek mythology, Narcissus became transfixed by his own reflection. The name
-is tongue-in-cheek, but the problem is real: video calls give us a live mirror
-while asking us to look engaged, present, and camera-aware.
+In Greek mythology, [Narcissus became transfixed by his own reflection](https://www.britannica.com/topic/Narcissus-Greek-mythology).
+The name is tongue-in-cheek, but the problem is real: video calls give us a live
+mirror while asking us to look engaged, present, and camera-aware.
 
-YouGov found that among people who use video on work conference calls, 25% said
-they spend more time looking at themselves than at colleagues. Jeremy
-Bailenson's Stanford work on Zoom fatigue describes self-view as "An All Day
-Mirror" and argues that a constant real-time view of ourselves can drive
-self-evaluation. Eye-tracking work reported by Iowa State also found that
-participants' gaze patterns on video calls are not as simple as "look at the
-speaker", and that women looked at their own videos more than men in that study.
+[YouGov found](https://yougov.com/en-us/articles/33801-work-video-chats-watching-self-poll)
+that among people who use video on work conference calls, 25% said they spend
+more time looking at themselves than at colleagues. Jeremy Bailenson's
+[Stanford work on Zoom fatigue](https://tmb.apaopen.org/pub/nonverbal-overload)
+describes self-view as "An All Day Mirror" and argues that a constant real-time
+view of ourselves can drive self-evaluation.
+[Eye-tracking work reported by Iowa State](https://research.iastate.edu/2022/02/10/eye-tracking-reveals-where-people-look-during-zoom-webex/)
+also found that participants' gaze patterns on video calls are not as simple as
+"look at the speaker", and that women looked at their own videos more than men
+in that study.
 
 The gaze problem matters because eye contact is part of how audiences read
-attention and engagement. Research on perceived direct gaze in video conferences
+attention and engagement. [Research on perceived direct gaze in video conferences](https://link.springer.com/article/10.1186/s41235-022-00418-1)
 notes that gaze direction is a common problem: camera position, screen position,
 tile size, and participant layout all get in the way.
 
