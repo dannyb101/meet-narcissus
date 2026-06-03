@@ -40,7 +40,7 @@ floating self-view and pinned it to corners. Eventually I wanted the self-view
 directly below the camera so I could keep an eye on myself while maintaining
 better eye contact.
 
-There was a workaround: right-click, drag, right-click again, then click outside
+There was a workaround: left-click, drag, right-click, then click outside
 the screen to coax the tile into place. It worked just enough to be annoying.
 Meet Narcissus is the actual fix.
 
@@ -82,16 +82,9 @@ Meet Narcissus is the actual fix.
 
 ## Notes
 
-Google Meet is frequently updated, so selectors may break over time. If
-something stops working, open an issue.
-
-Tested on Chrome (macOS) on 2026-01-30.
+This is a fork of the original [Meet Self View Center](https://github.com/aarivanov/MeetSelfViewCenter).
 
 ## Privacy
 
 Meet Narcissus does not collect, store, or transmit any personal data. All
 processing happens locally in your browser.
-
-## License
-
-MIT

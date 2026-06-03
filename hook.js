@@ -1,10 +1,12 @@
 (() => {
-  const TAG = "[MeetNarcissus-hook]";
+  const TAG = "[Meet Narcissus hook]";
+  const LOCAL_TRACKS_MESSAGE = "MEET_NARCISSUS_LOCAL_TRACKS";
+  const HOOKED_FLAG = "__meetNarcissusHooked";
 
   function postTrackIds(trackIds, source) {
     try {
       window.postMessage(
-        { type: "MEET_SELF_VIEW_CENTER_LOCAL_TRACKS", trackIds, source },
+        { type: LOCAL_TRACKS_MESSAGE, trackIds, source },
         "*"
       );
     } catch (e) {
@@ -16,7 +18,7 @@
   const md = navigator.mediaDevices;
   const ORIGINAL = md && md.getUserMedia;
 
-  if (ORIGINAL && !ORIGINAL.__meetSelfViewCenterHooked) {
+  if (ORIGINAL && !ORIGINAL[HOOKED_FLAG]) {
     const wrapped = async function (constraints) {
       const stream = await ORIGINAL.call(md, constraints);
 
@@ -36,7 +38,7 @@
       return stream;
     };
 
-    wrapped.__meetSelfViewCenterHooked = true;
+    wrapped[HOOKED_FLAG] = true;
     md.getUserMedia = wrapped;
     console.log(TAG, "Hook installed (getUserMedia)");
   } else {
@@ -46,7 +48,7 @@
   // 2) Hook video.srcObject setter (ловит stream даже если getUserMedia уже был)
   try {
     const desc = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, "srcObject");
-    if (desc && desc.set && !desc.set.__meetSelfViewCenterHooked) {
+    if (desc && desc.set && !desc.set[HOOKED_FLAG]) {
       const originalSet = desc.set;
 
       const wrappedSet = function (value) {
@@ -68,7 +70,7 @@
         return originalSet.call(this, value);
       };
 
-      wrappedSet.__meetSelfViewCenterHooked = true;
+      wrappedSet[HOOKED_FLAG] = true;
 
       Object.defineProperty(HTMLMediaElement.prototype, "srcObject", {
         get: desc.get,

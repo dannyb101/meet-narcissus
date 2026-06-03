@@ -1,6 +1,7 @@
 (() => {
-  const TAG = "[MeetNarcissus]";
-  const STORAGE_KEY = "msc_enabled";
+  const TAG = "[Meet Narcissus]";
+  const STORAGE_KEY = "meet_narcissus_enabled";
+  const LEGACY_STORAGE_KEY = "msc_enabled";
   const HOTKEY = { altKey: true, shiftKey: true, code: "KeyC" }; // Alt+Shift+C
 
   const TOP_OFFSET_PX = 12;
@@ -12,7 +13,9 @@
   const HIDE_GRACE_MS = 1500;
 
   const HIDE_ORIGINAL = true;
-  const OVERLAY_ID = "msc-overlay";
+  const OVERLAY_ID = "meet-narcissus-overlay";
+  const LOCAL_TRACKS_MESSAGE = "MEET_NARCISSUS_LOCAL_TRACKS";
+  const SET_ENABLED_MESSAGE = "MEET_NARCISSUS_SET_ENABLED";
 
   let enabled = true;
   let localTrackIds = new Set();
@@ -50,13 +53,13 @@
 
     restoreAllOriginalExcept(el);
 
-    if (el.dataset.mscHidden === "1") return;
+    if (el.dataset.meetNarcissusHidden === "1") return;
 
-    el.dataset.mscPrevOpacity = el.style.opacity || "";
-    el.dataset.mscPrevPointerEvents = el.style.pointerEvents || "";
-    el.dataset.mscPrevFilter = el.style.filter || "";
-    el.dataset.mscPrevVisibility = el.style.visibility || "";
-    el.dataset.mscHidden = "1";
+    el.dataset.meetNarcissusPrevOpacity = el.style.opacity || "";
+    el.dataset.meetNarcissusPrevPointerEvents = el.style.pointerEvents || "";
+    el.dataset.meetNarcissusPrevFilter = el.style.filter || "";
+    el.dataset.meetNarcissusPrevVisibility = el.style.visibility || "";
+    el.dataset.meetNarcissusHidden = "1";
 
     el.style.setProperty("opacity", "0", "important");
     el.style.setProperty("pointer-events", "none", "important");
@@ -94,32 +97,32 @@
   function restoreOriginalElement(el) {
     if (!el || el === document.documentElement || el === document.body) return;
 
-    const prevOpacity = el.dataset.mscPrevOpacity ?? "";
-    const prevPE = el.dataset.mscPrevPointerEvents ?? "";
-    const prevFilter = el.dataset.mscPrevFilter ?? "";
-    const prevVisibility = el.dataset.mscPrevVisibility ?? "";
+    const prevOpacity = el.dataset.meetNarcissusPrevOpacity ?? "";
+    const prevPE = el.dataset.meetNarcissusPrevPointerEvents ?? "";
+    const prevFilter = el.dataset.meetNarcissusPrevFilter ?? "";
+    const prevVisibility = el.dataset.meetNarcissusPrevVisibility ?? "";
 
     if (prevOpacity) el.style.opacity = prevOpacity; else el.style.removeProperty("opacity");
     if (prevPE) el.style.pointerEvents = prevPE; else el.style.removeProperty("pointer-events");
     if (prevFilter) el.style.filter = prevFilter; else el.style.removeProperty("filter");
     if (prevVisibility) el.style.visibility = prevVisibility; else el.style.removeProperty("visibility");
 
-    delete el.dataset.mscPrevOpacity;
-    delete el.dataset.mscPrevPointerEvents;
-    delete el.dataset.mscPrevFilter;
-    delete el.dataset.mscPrevVisibility;
-    delete el.dataset.mscHidden;
+    delete el.dataset.meetNarcissusPrevOpacity;
+    delete el.dataset.meetNarcissusPrevPointerEvents;
+    delete el.dataset.meetNarcissusPrevFilter;
+    delete el.dataset.meetNarcissusPrevVisibility;
+    delete el.dataset.meetNarcissusHidden;
   }
 
   function restoreAllOriginalExcept(currentEl) {
-    const hidden = document.querySelectorAll('[data-msc-hidden="1"]');
+    const hidden = document.querySelectorAll('[data-meet-narcissus-hidden="1"]');
     hidden.forEach((el) => {
       if (el !== currentEl) restoreOriginalElement(el);
     });
   }
 
   function restoreAllOriginal() {
-    const hidden = document.querySelectorAll('[data-msc-hidden="1"]');
+    const hidden = document.querySelectorAll('[data-meet-narcissus-hidden="1"]');
     hidden.forEach(restoreOriginalElement);
   }
 
@@ -487,7 +490,7 @@
   function setupTrackListener() {
     window.addEventListener("message", (event) => {
       if (!event?.data) return;
-      if (event.data.type !== "MEET_SELF_VIEW_CENTER_LOCAL_TRACKS") return;
+      if (event.data.type !== LOCAL_TRACKS_MESSAGE) return;
       if (event.data.source !== "getUserMedia") return;
 
       const ids = Array.isArray(event.data.trackIds) ? event.data.trackIds : [];
@@ -516,7 +519,7 @@
 
   function setupExtensionMessages() {
     chrome.runtime.onMessage.addListener((msg) => {
-      if (!msg || msg.type !== "MSC_SET_ENABLED") return;
+      if (!msg || msg.type !== SET_ENABLED_MESSAGE) return;
 
       enabled = !!msg.enabled;
       console.log(TAG, "set enabled from action:", enabled);
@@ -527,8 +530,13 @@
   }
 
   function loadEnabledFlag() {
-    chrome.storage.local.get([STORAGE_KEY], (res) => {
-      if (typeof res[STORAGE_KEY] === "boolean") enabled = res[STORAGE_KEY];
+    chrome.storage.local.get([STORAGE_KEY, LEGACY_STORAGE_KEY], (res) => {
+      if (typeof res[STORAGE_KEY] === "boolean") {
+        enabled = res[STORAGE_KEY];
+      } else if (typeof res[LEGACY_STORAGE_KEY] === "boolean") {
+        enabled = res[LEGACY_STORAGE_KEY];
+        chrome.storage.local.set({ [STORAGE_KEY]: enabled });
+      }
       console.log(TAG, "enabled:", enabled);
       if (!enabled) destroyOverlayAndRestore();
     });
